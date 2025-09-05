@@ -1,35 +1,76 @@
 const fs = require('fs');
 
-function myReadFile(filePath, callback){
+class FileManager {
+    constructor(){
+        this.files = [];
+    }
+
+    init = () =>{
+        try{
+            fs.promises.readdir('.', {encoding: 'utf-8', withFileTypes: true}, (err, data) => {
+                console.log(data);
+                return data;
+            });
+        }catch(err){
+            console.log(err);
+        }
+    }
+}
+
+
+async function readFolder(){
     try{
-        fs.readFile(filePath, 'utf8',(err, data)=>{
-            console.log(data);
+        return fs.promises.readdir('.', {encoding: 'utf-8', withFileTypes: true});
+    }catch(err){
+        console.log(err);
+    }
+}
+
+const temp = readFolder();
+temp.then(data => console.log(data))
+
+// const filesArray = readFolder((files) => {
+//     //console.log(files);
+//     return files;
+// });
+
+
+function readFolderPromise (folder, enconding) {
+    return new Promise(function(resolve, reject) {
+        fs.readdir(folder,enconding, function(err, filenames){
+            if (err) 
+                reject(err); 
+            else 
+                resolve(filenames);
+        });
+    });
+};
+
+
+// callback
+function readFolder1(callback){
+    try{
+        fs.readdir('./', {encoding: 'utf-8', withFileTypes: true}, (err, data) =>{
+            callback(err, data)
         });
     }catch(err){
         console.log(err);
     }
 }
-//myReadFile('index.html');
 
-async function promiseReadFile(){
-    try{
-        const data = await fs.promises.readFile('index.html', 'utf8');
-        console.log(data);
-    }catch(err){
-        console.log(err);
+const custom = (err, data) => {
+    if (err) {
+        console.error(err);
+    } else {
+        console.log(Array.isArray(data));
+        const filesArray = data.filter(item => {
+            return item.name.split('.')[1] === 'csv'
+        })
+        console.log(filesArray);
     }
 }
 
-//const data = promiseReadFile();
-//console.log(data);
-// data
-//     .then(data => console.log(data))
-//     .catch(err => console.log(err))
+//readFolder1(custom);
 
-async function example(){
-    const data = 'null';
-    return data;
-}
 
-const data = example();
-console.log(data);
+// playaround with folders and files -> callbacks vs promises
